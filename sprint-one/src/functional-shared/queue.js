@@ -13,7 +13,6 @@ var queueMethods = {};
 
 queueMethods.size = function() {
   var num = this.nextHead - this.oldest;
-  console.log("num " + num);
   return num;
 };
 
