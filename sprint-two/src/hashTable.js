@@ -8,24 +8,35 @@ var HashTable = function() {
 HashTable.prototype.insert = function(k, v) {
   var index = getIndexBelowMaxForKey(k, this._limit);
   for (var i = 0; i < this._limit; i++) {
-    var bucket = k + i % this._limit;
-    var tupleItem = this._storage[bucket];
+    var bucket = index + i % this._limit;
+    var tupleItem = this._storage.get(bucket);
     if (tupleItem === undefined) {
-      this._storage[bucket] = [k, v];
+      this._storage.set(bucket, tupleItem) = [k, v];
       return;
     }
     if (tupleItem[0] === k) {
-      this._storage[bucket] = [k, v];
+      this._storage.set(bucket, tupleItem) = [k, v];
       return;
     }
   }
+  //double in size
+  this.doubleSize();
+};
+
+HashTable.prototype.doubleSize = function() {
+  var allItems = this._storage;
+  this._limit = this._limit * 2;
+  this._storage = LimitedArray(this._limit);
+  _.each(allItems, function(tupleItem)  {
+    this.insert.apply(this, tupleItem);
+  });
 };
 
 HashTable.prototype.retrieve = function(k) {
   var index = getIndexBelowMaxForKey(k, this._limit);
   for (var i = 0; i < this._limit; i++) {
-    var bucket = k + i % this._limit;
-    var tupleItem = this._storage[bucket];
+    var bucket = index + i % this._limit;
+    var tupleItem = this._storage.get(bucket);
     if (tupleItem === undefined) {
       return undefined;
     }
@@ -39,13 +50,13 @@ HashTable.prototype.retrieve = function(k) {
 HashTable.prototype.remove = function(k) {
   var index = getIndexBelowMaxForKey(k, this._limit);
   for (var i = 0; i < this._limit; i++) {
-    var bucket = k + i % this._limit;
-    var tupleItem = this._storage[bucket];
+    var bucket = index + i % this._limit;
+    var tupleItem = this._storage.get(bucket);
     if (tupleItem === undefined) {
       return;
     }
     if (tupleItem[0] === k) {
-      delete this._storage[bucket];
+      delete this._storage.get(bucket);
       return;
     }
   }
