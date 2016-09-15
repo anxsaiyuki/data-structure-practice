@@ -4,12 +4,33 @@ var LinkedList = function() {
   list.tail = null;
 
   list.addToTail = function(value) {
+    var node = new Node(value);
+    if(list.tail !== null) {
+      list.tail.next = node;
+    }
+    if(list.head === null) {
+      list.head = node;
+    }
+    list.tail = node;
   };
 
   list.removeHead = function() {
+    if(list.head !== null) {
+      var oldHead = list.head.value;
+      list.head = list.head.next;
+      return oldHead;
+    }
+    return null;
   };
 
   list.contains = function(target) {
+    var node = list.head;
+    while(node != null) {
+      if(node.value === target) return true;
+      node = node.next;
+    }
+    return false;
+
   };
 
   return list;
