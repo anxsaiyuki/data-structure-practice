@@ -1,0 +1,15 @@
+
+
+Insert node:
+  Normal insert node
+  if right.maxDepth - left.minDepth === 2 then rebalanceLeft
+  if left.maxDepth - right.minDepth === 2 then rebalanceRight
+
+rebalanceLeft:
+  oldRoot becomes left
+  if right.left:
+    right.left becomes root
+    oldRight becomes right.left
+    oldRight.right become right
+  else:
+    right becomes root
