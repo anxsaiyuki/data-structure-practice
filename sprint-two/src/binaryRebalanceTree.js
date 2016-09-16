@@ -8,7 +8,7 @@ var BinaryRebalanceTree = function(value) {
   binTree.value = value;
   //binTree.minDepth = 1;
   //binTree.maxDepth = 1;
-  binTree.depth = 1;
+  //binTree.depth = 1;
   return binTree;
 };
 
@@ -16,7 +16,6 @@ var rebalanceTreeMethods = {};
 
 
 rebalanceTreeMethods.insert = function(node) {
-  //if(node === 6) debugger;
   this._insert(node);
 
   if ( (this.getMaxSide('right') - this.getMinSide('left')) === 2) {
@@ -31,20 +30,19 @@ rebalanceTreeMethods.insert = function(node) {
 rebalanceTreeMethods._insert = function(node) {
   //debugger;
   var newTree = BinaryRebalanceTree(node);
-  //newTree.parent = this;
 
 
   if(node > this.value) {
     if(this.right === null) {
       this.right = newTree;
-      newTree.depth = this.depth + 1;
+      //newTree.depth = this.depth + 1;
     } else {
       this.right.insert(node);
     }
   } else {
     if(this.left === null) {
       this.left = newTree;
-      newTree.depth = this.depth + 1;
+      //newTree.depth = this.depth + 1;
     } else {
       this.left.insert(node);
     }
@@ -54,9 +52,6 @@ rebalanceTreeMethods._insert = function(node) {
 
 
 rebalanceTreeMethods.getMaxDepth = function() {
-  console.log("this " + this.value);
-  if(this.left) console.log("left " + this.left.value);
-  if(this.right) console.log("right " + this.right.value);
   var max = 1;
   if (this.right !== null) {
     max = Math.max(max, 1 + this.right.getMaxDepth());
@@ -64,6 +59,7 @@ rebalanceTreeMethods.getMaxDepth = function() {
   if (this.left !== null) {
     max = Math.max(max, 1 + this.left.getMaxDepth());
   }
+
   return max;
 
 };
@@ -72,7 +68,6 @@ rebalanceTreeMethods.getMaxSide = function(side) {
   var max = 1;
   if (this[side] !== null ) {
     max = Math.max(max, 1 + this[side].getMaxDepth());
-    if(this[side].value  === 6) debugger;
   }
   return max;
 };
@@ -107,11 +102,11 @@ rebalanceTreeMethods.rebalanceLeft = function(node) {
 
   var A = this;
   var B = this.right;
-
   if(B.left != null ) {
     var beta  = B.left;
     A.right = beta;
-    console.log("hit");
+  } else {
+    A.right = null;
   }
   B.left = A;
   return B;
