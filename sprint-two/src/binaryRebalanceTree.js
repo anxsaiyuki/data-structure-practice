@@ -1,11 +1,14 @@
+
+
 var BinaryRebalanceTree = function(value) {
   var binTree = Object.create(rebalanceTreeMethods);
   binTree.left = null;
   binTree.right = null;
-  binTree.parent = null;
+  //binTree.parent = null;
   binTree.value = value;
-  binTree.minDepth = 1;
-  binTree.maxDepth = 1;
+  //binTree.minDepth = 1;
+  //binTree.maxDepth = 1;
+  binTree.depth = 1;
   return binTree;
 };
 
@@ -13,132 +16,108 @@ var rebalanceTreeMethods = {};
 
 
 rebalanceTreeMethods.insert = function(node) {
+  //if(node === 6) debugger;
   this._insert(node);
 
   if ( (this.getMaxSide('right') - this.getMinSide('left')) === 2) {
-    this.rebalanceLeft();
+    return this.rebalanceLeft();
   } else if ( (this.getMaxSide('left') - this.getMinSide('right')) === 2) {
-    this.rebalanceRight();
+    return this.rebalanceRight();
   }
-};
-
-rebalanceTreeMethods.rebalanceRight = function(node) {
-};
-
-rebalanceTreeMethods.rebalanceLeft = function(node) {
-  if(this.right.left != null ) {
-    //var newRoot = this.right.left;
-    //this.setAsReplacement(newRoot);
-    /*
-    var P = this;
-    var Q = this.right;
-    var A = this.left;
-    var B = this.right.left;
-    var C = this.right.right;
-
-    P.right = Q;
-    P.right = Q.left;
-    Q.left = P;
-    P.parent = Q;
-    */
-    var oldParent = this.parent;
-    var wasLeft;
-
-    if(oldParent){
-      if(oldParent.left === this) {
-        wasLeft = true;
-      }
-      else {
-        wasLeft = false;
-      }
-    }
-    var newRoot = this.right.left;
-    this.parent = newRoot;
-    newRoot.parent = oldParent;
-    newRoot.left = this;
-
-    if(oldParent) {
-      if(wasLeft) {
-        oldParent.left = newRoot;
-      }
-      else {
-        oldParent.right = newRoot;
-      }
-    }
-    newRoot.right = this.right.right;
-    newRoot.right.parent = newRoot;
-    newRoot.right.left = this.right;
-    newRoot.right.left.parent = this.right.right;
-
-  } else {
-
-  }
-  this.updateDepthRecursive();
-};
-
-rebalanceTreeMethods.setAsReplacement = function(tree) {
-  if(this.parent != null) {
-    if (this.parent.left === this) {
-      this.parent.left = tree;
-    }
-    else {
-      this.parent.right = tree;
-    }
-  }
-  tree.parent = this.parent;
+  return this;
 };
 
 
 rebalanceTreeMethods._insert = function(node) {
+  //debugger;
   var newTree = BinaryRebalanceTree(node);
-  newTree.parent = this;
+  //newTree.parent = this;
+
 
   if(node > this.value) {
     if(this.right === null) {
       this.right = newTree;
+      newTree.depth = this.depth + 1;
     } else {
       this.right.insert(node);
     }
   } else {
     if(this.left === null) {
       this.left = newTree;
+      newTree.depth = this.depth + 1;
     } else {
       this.left.insert(node);
     }
   }
-  this.updateDepth();
+  // this.updateDepthRecursive();
 };
 
-rebalanceTreeMethods.updateDepthRecursive = function() {
-  if((this.left === null) && (this.right === null)) {
-    this.maxDepth = 1;
-    this.minDepth = 1;
-  } else if (this.left === null) {
-    this.minDepth = 1;
-    this.maxDepth = 1 + this.right.maxDepth;
-  } else if (this.right === null) {
-    this.minDepth = 1;
-    this.maxDepth = 1 + this.left.maxDepth;
-  } else {
-    this.updateDepth();
+
+rebalanceTreeMethods.getMaxDepth = function() {
+  console.log("this " + this.value);
+  if(this.left) console.log("left " + this.left.value);
+  if(this.right) console.log("right " + this.right.value);
+  var max = 1;
+  if (this.right !== null) {
+    max = Math.max(max, 1 + this.right.getMaxDepth());
   }
+  if (this.left !== null) {
+    max = Math.max(max, 1 + this.left.getMaxDepth());
+  }
+  return max;
+
 };
 
-rebalanceTreeMethods.updateDepth = function() {
-  this.minDepth = 1 + Math.min(this.getMinSide('left'), this.getMinSide('right'));
-  this.maxDepth = 1 + Math.max(this.getMaxSide('left'), this.getMaxSide('right'));
+rebalanceTreeMethods.getMaxSide = function(side) {
+  var max = 1;
+  if (this[side] !== null ) {
+    max = Math.max(max, 1 + this[side].getMaxDepth());
+    if(this[side].value  === 6) debugger;
+  }
+  return max;
 };
 
 
-rebalanceTreeMethods.getMinSide = function(prop) {
-  if(this[prop]) {return this[prop].minDepth;}
-  return 0;
+rebalanceTreeMethods.getMinDepth = function() {
+  if(this.right === null) {
+    return 1;
+  }
+  if(this.left === null) {
+    return 1;
+  }
+  var min = 1 + this.right.getMinDepth();
+  min = Math.min(min, 1+this.left.getMinDepth());
+  return min;
+
 };
 
-rebalanceTreeMethods.getMaxSide = function(prop) {
-  if(this[prop]) {return this[prop].maxDepth;}
-  return 0;
+
+rebalanceTreeMethods.getMinSide = function(side) {
+  if(this[side] == null) {
+    return 1;
+  }
+  return 1 + this[side].getMinDepth();
 };
+
+rebalanceTreeMethods.rebalanceRight = function(node) {
+};
+
+rebalanceTreeMethods.rebalanceLeft = function(node) {
+  console.log("rebalance"); 
+
+  var A = this;
+  var B = this.right;
+
+  if(B.left != null ) {
+    var beta  = B.left;
+    A.right = beta;
+    console.log("hit");
+  }
+  B.left = A;
+  return B;
+  //this.updateDepthRecursive();
+};
+
 
 
 
@@ -172,6 +151,39 @@ rebalanceTreeMethods.depthFirstLog = function(cb) {
   }
 };
 
+
+/*
+rebalanceTreeMethods.updateDepthRecursive = function() {
+  if((this.left === null) && (this.right === null)) {
+    this.maxDepth = 1;
+    this.minDepth = 1;
+  } else if (this.left === null) {
+    this.minDepth = 1;
+    this.maxDepth = 1 + this.right.maxDepth;
+  } else if (this.right === null) {
+    this.minDepth = 1;
+    this.maxDepth = 1 + this.left.maxDepth;
+  } else {
+    this.updateDepth();
+  }
+};
+
+
+rebalanceTreeMethods.updateDepth = function() {
+  this.minDepth = 1 + Math.min(this.getMinSide('left'), this.getMinSide('right'));
+  this.maxDepth = 1 + Math.max(this.getMaxSide('left'), this.getMaxSide('right'));
+};
+
+rebalanceTreeMethods.getMinSide = function(prop) {
+  if(this[prop]) {return this[prop].minDepth;}
+  return 0;
+};
+
+rebalanceTreeMethods.getMaxSide = function(prop) {
+  if(this[prop]) {return this[prop].maxDepth;}
+  return 0;
+};
+
 rebalanceTreeMethods.getMaxDepth = function(node) {
   return this.maxDepth;
 };
@@ -179,3 +191,4 @@ rebalanceTreeMethods.getMaxDepth = function(node) {
 rebalanceTreeMethods.getMinDepth = function(node) {
   return this.minDepth;
 };
+*/
