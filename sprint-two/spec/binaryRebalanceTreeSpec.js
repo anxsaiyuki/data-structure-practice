@@ -17,7 +17,7 @@ describe('binaryReblanceTree', function() {
     expect(rebalanceTree.getMinDepth()).to.equal(2);
   });
 
-  it('should rebalance the tree', function() {
+  it('should rebalance the tree with empty left ', function() {
     rebalanceTree.insert(6);
     expect(rebalanceTree.getMaxDepth()).to.equal(3);
   });

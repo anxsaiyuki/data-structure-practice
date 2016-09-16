@@ -26,11 +26,54 @@ rebalanceTreeMethods.rebalanceRight = function(node) {
 };
 
 rebalanceTreeMethods.rebalanceLeft = function(node) {
-  if(right.left != null ) {
-    this.setAsReplacement(this.right.left);
+  if(this.right.left != null ) {
+    //var newRoot = this.right.left;
+    //this.setAsReplacement(newRoot);
+    /*
+    var P = this;
+    var Q = this.right;
+    var A = this.left;
+    var B = this.right.left;
+    var C = this.right.right;
+
+    P.right = Q;
+    P.right = Q.left;
+    Q.left = P;
+    P.parent = Q;
+    */
+    var oldParent = this.parent;
+    var wasLeft;
+
+    if(oldParent){
+      if(oldParent.left === this) {
+        wasLeft = true;
+      }
+      else {
+        wasLeft = false;
+      }
+    }
+    var newRoot = this.right.left;
+    this.parent = newRoot;
+    newRoot.parent = oldParent;
+    newRoot.left = this;
+
+    if(oldParent) {
+      if(wasLeft) {
+        oldParent.left = newRoot;
+      }
+      else {
+        oldParent.right = newRoot;
+      }
+    }
+    newRoot.right = this.right.right;
+    newRoot.right.parent = newRoot;
+    newRoot.right.left = this.right;
+    newRoot.right.left.parent = this.right.right;
+
   } else {
 
   }
+  this.updateDepthRecursive();
 };
 
 rebalanceTreeMethods.setAsReplacement = function(tree) {
@@ -38,7 +81,11 @@ rebalanceTreeMethods.setAsReplacement = function(tree) {
     if (this.parent.left === this) {
       this.parent.left = tree;
     }
+    else {
+      this.parent.right = tree;
+    }
   }
+  tree.parent = this.parent;
 };
 
 
@@ -60,6 +107,21 @@ rebalanceTreeMethods._insert = function(node) {
     }
   }
   this.updateDepth();
+};
+
+rebalanceTreeMethods.updateDepthRecursive = function() {
+  if((this.left === null) && (this.right === null)) {
+    this.maxDepth = 1;
+    this.minDepth = 1;
+  } else if (this.left === null) {
+    this.minDepth = 1;
+    this.maxDepth = 1 + this.right.maxDepth;
+  } else if (this.right === null) {
+    this.minDepth = 1;
+    this.maxDepth = 1 + this.left.maxDepth;
+  } else {
+    this.updateDepth();
+  }
 };
 
 rebalanceTreeMethods.updateDepth = function() {
