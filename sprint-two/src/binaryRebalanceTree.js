@@ -15,14 +15,43 @@ var BinaryRebalanceTree = function(value) {
 var rebalanceTreeMethods = {};
 
 
-rebalanceTreeMethods.insert = function(node) {
+
+rebalanceTreeMethods.insert = function(node, isNotRoot) {
   this._insert(node);
 
+  /*
   if ( (this.getMaxSide('right') - this.getMinSide('left')) === 2) {
     return this.rebalanceLeft();
   } else if ( (this.getMaxSide('left') - this.getMinSide('right')) === 2) {
     return this.rebalanceRight();
   }
+  return this;
+  */
+  //if(this.value === 2) debugger;
+
+  var sides = ['left', 'right'];
+  for(var i =0; i < 2; i++) {
+    for(var j =0; j < 2; j++) {
+      var nodeSide = sides[i];
+      var rebalanceSide = sides[j];
+      if(this[nodeSide]) {
+        if(this[nodeSide].needsRebalance(rebalanceSide)) {
+          console.log("rebalance " + nodeSide + " to " + rebalanceSide);
+          this[nodeSide] = this[nodeSide].rebalance(rebalanceSide);
+          break;
+        }
+      }
+    }
+  }
+
+  if(isNotRoot === false || isNotRoot === undefined)  {
+    if(this.needsRebalance('right')) {
+      return this.rebalanceRight();
+    } else if (this.needsRebalance('left')){
+      return this.rebalanceLeft();
+    }
+  }
+
   return this;
 };
 
@@ -37,14 +66,14 @@ rebalanceTreeMethods._insert = function(node) {
       this.right = newTree;
       //newTree.depth = this.depth + 1;
     } else {
-      this.right.insert(node);
+      this.right.insert(node, true);
     }
   } else {
     if(this.left === null) {
       this.left = newTree;
       //newTree.depth = this.depth + 1;
     } else {
-      this.left.insert(node);
+      this.left.insert(node, true);
     }
   }
   // this.updateDepthRecursive();
@@ -94,20 +123,61 @@ rebalanceTreeMethods.getMinSide = function(side) {
   return 1 + this[side].getMinDepth();
 };
 
-rebalanceTreeMethods.rebalanceRight = function(node) {
+
+rebalanceTreeMethods.needsRebalance = function(side) {
+  var otherSide;
+  if(side === "left"){
+    otherSide = "right";
+  } else {
+    otherSide = "left";
+  }
+
+  if ( (this.getMaxSide(otherSide) - this.getMinSide(side)) === 2) {
+    return true;
+  } else {
+    return false;
+  }
 };
 
-rebalanceTreeMethods.rebalanceLeft = function(node) {
-  console.log("rebalance"); 
+
+rebalanceTreeMethods.rebalance = function(side) {
+  if(side === "left"){
+    return this.rebalanceLeft();
+  } else {
+    return this.rebalanceRight();
+  }
+};
+
+rebalanceTreeMethods.rebalanceRight = function() {
+  if(this.left && this.left.right) {
+    return this.reArrangeRight   ();
+  } else {
+    return this.rotateRight();
+  }
+};
+
+rebalanceTreeMethods.rebalanceLeft = function() {
+  if(this.right && this.right.left) {
+    return this.reArrangeLeft();
+  } else {
+    return this.rotateLeft();
+  }
+};
+
+
+rebalanceTreeMethods.rotateRight = function() {
+  var B = this;
+  var A = this.left;
+  B.left = A.right;
+  A.right = B;
+  return A;
+};
+
+rebalanceTreeMethods.rotateLeft = function() {
 
   var A = this;
   var B = this.right;
-  if(B.left != null ) {
-    var beta  = B.left;
-    A.right = beta;
-  } else {
-    A.right = null;
-  }
+  A.right = B.left;
   B.left = A;
   return B;
   //this.updateDepthRecursive();
